@@ -44,18 +44,17 @@ public final class ECDSA {
     
     public func verifySignature(_ sigData: Data, message: Data, publicKeyData: Data) throws -> Bool {
         guard let ctx = secp256k1_context_create(UInt32(SECP256K1_CONTEXT_VERIFY)) else { return false }
+        defer { secp256k1_context_destroy(ctx) }
         var pubkey = secp256k1_pubkey()
         var signature = secp256k1_ecdsa_signature()
-        secp256k1_ecdsa_signature_parse_der(ctx, &signature, sigData.bytes, sigData.count)
-        
-        if (secp256k1_ec_pubkey_parse(ctx, &pubkey, publicKeyData.bytes, publicKeyData.count) != 1) {
+        secp256k1_ecdsa_signature_parse_der(ctx, &signature, [UInt8](sigData), sigData.count)
+        if (secp256k1_ec_pubkey_parse(ctx, &pubkey, [UInt8](publicKeyData), publicKeyData.count) != 1) {
             return false
         };
         
-        if (secp256k1_ecdsa_verify(ctx, &signature, message.bytes, &pubkey) != 1) {
+        if (secp256k1_ecdsa_verify(ctx, &signature, [UInt8](message), &pubkey) != 1) {
             return false
         };
-        secp256k1_context_destroy(ctx);
         return true
     }
 }
