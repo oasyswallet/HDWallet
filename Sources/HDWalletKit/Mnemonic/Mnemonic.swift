@@ -47,8 +47,6 @@ public final class Mnemonic {
         guard let salt = ("mnemonic" + passphrase).decomposedStringWithCompatibilityMapping.data(using: .utf8) else {
             fatalError("Nomalizing salt failed in \(self)")
         }
-        
-        return Crypto.PBKDF2SHA512(password: password.bytes, salt: salt.bytes)
+        return Crypto.PBKDF2SHA512(password: [UInt8](password), salt: [UInt8](salt))
     }
 }
-
